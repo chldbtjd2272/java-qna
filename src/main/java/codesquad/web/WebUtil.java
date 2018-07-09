@@ -1,5 +1,7 @@
 package codesquad.web;
 
+import org.springframework.data.repository.CrudRepository;
+
 import javax.servlet.http.HttpServletResponse;
 import java.io.PrintWriter;
 
@@ -15,4 +17,5 @@ public class WebUtil {
         }
         return response;
     }
+
 }

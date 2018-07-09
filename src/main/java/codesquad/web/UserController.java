@@ -6,17 +6,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
 
 @Controller
 @RequestMapping("/users")
 public class UserController {
-    private List<User> users = new ArrayList<>();
-
     @Autowired
     private UserRepository userRepository;
 
@@ -47,10 +42,9 @@ public class UserController {
         return "/user/updateForm";
     }
 
-    @PutMapping("/update")
+    @PutMapping("")
     public String updateUser(User user, HttpServletResponse response) {
-        if (userRepository.findById(user.getId()).get().getPassword().equals(user.getPassword())) {
-            userRepository.save(user);
+        if (user.update(userRepository)) {
             return "redirect:/users";
         }
         WebUtil.alert("비밀번호가 틀렸습니다.", response);

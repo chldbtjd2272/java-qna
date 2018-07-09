@@ -1,7 +1,10 @@
 package codesquad.domain;
 
 
+import org.springframework.data.repository.CrudRepository;
+
 import javax.persistence.*;
+import java.util.Optional;
 
 @Entity
 public class User {
@@ -66,5 +69,19 @@ public class User {
     public String getEmail() {
 
         return email;
+    }
+
+    public boolean update(CrudRepository repository){
+        Optional<User> userOptional = repository.findById(this.id);
+        userOptional.orElseThrow(()-> new IllegalArgumentException());
+        if(this.isCorrectPassword(userOptional.get().getPassword())) {
+            repository.save(this);
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isCorrectPassword(String password){
+        return this.password.equals(password);
     }
 }

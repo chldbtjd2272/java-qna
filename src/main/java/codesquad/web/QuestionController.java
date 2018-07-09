@@ -8,53 +8,61 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
+
+
 
 @Controller
+@RequestMapping("/questions")
 public class QuestionController {
-    private List<Question> questions = new ArrayList<>();
-
     @Autowired
     QuestionRepository questionRepository;
 
-    @PostMapping("/questions")
-    public String create(Question question) {
-//        question.setIndex(questions.size()+1);
-//        questions.add(question);
-        questionRepository.save(question);
-        return "redirect:/";
-    }
-
-
-    @GetMapping("/")
+    @GetMapping("")
     public String list(Model model) {
         model.addAttribute("questions", questionRepository.findAll());
         return "/index";
     }
 
-    @GetMapping("/questions/{id}")
+    @PostMapping("")
+    public String create(Question question) {
+//        question.setIndex(questions.size()+1);
+//        questions.add(question);
+        questionRepository.save(question);
+        return "redirect:/questions";
+    }
+
+    @GetMapping("/{id}")
     public String show(@PathVariable Long id, Model model) {
-        model.addAttribute("questions", questionRepository.findById(id).get());
+        model.addAttribute("questions", findQuestionWithId(id,this.questionRepository));
         return "/qna/show";
     }
 
-    @GetMapping("/questions/{id}/update")
+    @GetMapping("/{id}/update")
     public String findQuestion(@PathVariable Long id, Model model) {
-        model.addAttribute("question", questionRepository.findById(id).get());
+        model.addAttribute("question", findQuestionWithId(id,this.questionRepository));
         return "/qna/updateForm";
     }
 
-    @PutMapping("questions/update")
-    public String update(Question question) {
-        questionRepository.save(question);
-        return "redirect:/questions/" + question.getId();
+    @PutMapping("")
+    public String update(Question question, HttpServletResponse response) {
+        if(question.update(questionRepository)) {
+            return "redirect:/questions/" + question.getId();
+        }
+        WebUtil.alert("비밀번호를 확인해 주세요.", response);
+        return "";
     }
 
-    @DeleteMapping("questions/{id}/delete")
+    @DeleteMapping("/{id}")
     public String delete(@PathVariable Long id) {
         questionRepository.deleteById(id);
         return "redirect:/";
     }
 
+    static Question findQuestionWithId(Long id,QuestionRepository questionRepository){
+
+        Optional<Question> questionOptional = questionRepository.findById(id);
+        questionOptional.orElseThrow(() -> new IllegalArgumentException("No user found with id " + id));
+        return questionOptional.get();
+    }
 }
