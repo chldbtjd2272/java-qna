@@ -1,5 +1,6 @@
 package codesquad.web;
 
+import codesquad.domain.User;
 import org.springframework.data.repository.CrudRepository;
 
 import javax.servlet.http.HttpServletResponse;
@@ -14,6 +15,9 @@ public class WebUtil {
             return false;
         }
         return true;
+    }
+    public static User fromSession(HttpSession session) {
+        return (User) session.getAttribute("sessionedUser");
     }
 
 }

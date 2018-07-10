@@ -39,7 +39,7 @@ public class QuestionController {
         if (!WebUtil.isAlive(session)) {
             return "/user/login";
         }
-        question.setWriter(User.fromSession(session));
+        question.setWriter(WebUtil.fromSession(session));
         questionRepository.save(question);
         return "redirect:/questions";
     }
@@ -57,7 +57,7 @@ public class QuestionController {
         }
 
         Question question = findQuestionWithId(id, this.questionRepository);
-        if (question.matchWriter(User.fromSession(session))) {
+        if (question.matchWriter(WebUtil.fromSession(session))) {
             model.addAttribute("question", question);
             return "/qna/updateForm";
         }
@@ -82,13 +82,13 @@ public class QuestionController {
         if (!WebUtil.isAlive(session)) {
             return "/user/login";
         }
+
         Question question = findQuestionWithId(id, this.questionRepository);
-        if (question.matchWriter(User.fromSession(session))) {
+        if (question.matchWriter(WebUtil.fromSession(session))) {
             questionRepository.deleteById(id);
             return "redirect:/";
         }
-        ;
-        model.addAttribute("error", new ErrorMessage("권한이 없습니다"));
+        model.addAttribute("error", new ErrorMessage("권한이 없습니다."));
         return "/error";
     }
 

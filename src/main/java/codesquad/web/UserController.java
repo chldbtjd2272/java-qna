@@ -24,11 +24,9 @@ public class UserController {
         if (!maybeUser.isPresent()) {
             throw new IllegalArgumentException();
         }
-        User checkUser = maybeUser.get();
-        if (!user.isCorrectPassword(checkUser)) {
-            throw new IllegalArgumentException();
-        }
-        session.setAttribute("sessionedUser", checkUser);
+        maybeUser.filter(u -> u.isCorrectPassword(user))
+                .orElseThrow(() -> new IllegalArgumentException("아이디 혹은 비밀번호가 틀렸어요"));
+        session.setAttribute("sessionedUser", maybeUser.get());
         return "redirect:/";
     }
 
@@ -63,7 +61,7 @@ public class UserController {
             return "/user/login";
         }
 
-        User user = User.fromSession(session);
+        User user = WebUtil.fromSession(session);
         if (user.matchId(id)) {
             model.addAttribute("user", user);
             return "/user/updateForm";
@@ -74,7 +72,7 @@ public class UserController {
 
     @PutMapping("")
     public String updateUser(User user, Model model, HttpSession session) {
-        User original = findUserWithId(User.fromSession(session).getId(), userRepository);
+        User original = findUserWithId(WebUtil.fromSession(session).getId(), userRepository);
         if (original.isCorrectPassword(user)) {
             original.update(user);
             userRepository.save(original);

@@ -81,10 +81,6 @@ public class User {
         return this.id == id;
     }
 
-    public static User fromSession(HttpSession session) {
-        return (User) session.getAttribute("sessionedUser");
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
