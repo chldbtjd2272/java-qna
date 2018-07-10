@@ -99,6 +99,4 @@ public class QuestionController {
         questionOptional.orElseThrow(() -> new IllegalArgumentException("No question found with id " + id));
         return questionOptional.get();
     }
-
-
 }
