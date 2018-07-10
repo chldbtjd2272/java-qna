@@ -63,18 +63,8 @@ public class Question {
         this.contents = contents;
     }
 
-    public boolean update(CrudRepository repository){
-        Optional<Question> questionOptional = repository.findById(this.id);
-        questionOptional.orElseThrow(() -> new IllegalArgumentException());
-        if(isCorrectPassword(questionOptional.get().getPassword())){
-            repository.save(this);
-            return true;
-        }
-        return false;
-    }
-
-    public boolean isCorrectPassword(String password){
-        return this.password.equals(password);
+    public boolean isCorrectPassword(Question question){
+        return this.password.equals(question.getPassword());
     }
 }
 

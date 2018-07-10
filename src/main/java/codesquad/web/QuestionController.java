@@ -46,7 +46,8 @@ public class QuestionController {
 
     @PutMapping("")
     public String update(Question question, HttpServletResponse response) {
-        if(question.update(questionRepository)) {
+        if(question.isCorrectPassword(findQuestionWithId(question.getId(),questionRepository))) {
+            questionRepository.save(question);
             return "redirect:/questions/" + question.getId();
         }
         WebUtil.alert("비밀번호를 확인해 주세요.", response);

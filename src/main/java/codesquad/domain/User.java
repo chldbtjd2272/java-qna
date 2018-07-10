@@ -71,17 +71,9 @@ public class User {
         return email;
     }
 
-    public boolean update(CrudRepository repository){
-        Optional<User> userOptional = repository.findById(this.id);
-        userOptional.orElseThrow(()-> new IllegalArgumentException());
-        if(this.isCorrectPassword(userOptional.get().getPassword())) {
-            repository.save(this);
-            return true;
-        }
-        return false;
-    }
+    public boolean isCorrectPassword(User user){
+            return this.getPassword().equals(user.getPassword());
+      }
 
-    public boolean isCorrectPassword(String password){
-        return this.password.equals(password);
-    }
+
 }

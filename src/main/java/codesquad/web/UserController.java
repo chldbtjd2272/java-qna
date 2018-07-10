@@ -1,5 +1,7 @@
 package codesquad.web;
 
+import codesquad.domain.Question;
+import codesquad.domain.QuestionRepository;
 import codesquad.domain.User;
 import codesquad.domain.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +10,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Optional;
 
 @Controller
 @RequestMapping("/users")
@@ -44,13 +47,22 @@ public class UserController {
 
     @PutMapping("")
     public String updateUser(User user, HttpServletResponse response) {
-        if (user.update(userRepository)) {
+
+        if (user.isCorrectPassword(findUserWithId(user.getId(),userRepository))){
+            userRepository.save(user);
             return "redirect:/users";
         }
         WebUtil.alert("비밀번호가 틀렸습니다.", response);
         return null;
     }
 
+
+    static User findUserWithId(Long id, UserRepository userRepository){
+
+        Optional<User> userOptional = userRepository.findById(id);
+        userOptional.orElseThrow(() -> new IllegalArgumentException("No user found with id " + id));
+        return userOptional.get();
+    }
     //
 //    @PostMapping("/users")
 //    public ModelAndView create2(String userId,
