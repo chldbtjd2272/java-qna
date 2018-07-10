@@ -4,6 +4,8 @@ package codesquad.domain;
 import org.springframework.data.repository.CrudRepository;
 
 import javax.persistence.*;
+import javax.servlet.http.HttpSession;
+import java.util.Objects;
 import java.util.Optional;
 
 @Entity
@@ -23,19 +25,19 @@ public class User {
     public User() {
     }
 
+    public User(String userId, String password, String name, String email) {
+        this.userId = userId;
+        this.password = password;
+        this.name = name;
+        this.email = email;
+    }
+
     public Long getId() {
         return id;
     }
 
     public void setId(Long id) {
         this.id = id;
-    }
-
-    public User(String userId, String password, String name, String email) {
-        this.userId = userId;
-        this.password = password;
-        this.name = name;
-        this.email = email;
     }
 
     public String getUserId() {
@@ -71,9 +73,38 @@ public class User {
         return email;
     }
 
-    public boolean isCorrectPassword(User user){
-            return this.getPassword().equals(user.getPassword());
-      }
+    public boolean isCorrectPassword(User user) {
+        return this.password.equals(user.password);
+    }
 
+    public boolean matchId(long id) {
+        return this.id == id;
+    }
 
+    public static User fromSession(HttpSession session) {
+        return (User) session.getAttribute("sessionedUser");
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id) &&
+                Objects.equals(userId, user.userId) &&
+                Objects.equals(password, user.password) &&
+                Objects.equals(name, user.name) &&
+                Objects.equals(email, user.email);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(id, userId, password, name, email);
+    }
+
+    public void update(User user) {
+        this.name = user.name;
+        this.email = user.email;
+    }
 }
