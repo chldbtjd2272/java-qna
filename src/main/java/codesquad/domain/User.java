@@ -102,5 +102,4 @@ public class User {
     public int hashCode() {
         return Objects.hash(id, userId, password, name, email);
     }
-
 }

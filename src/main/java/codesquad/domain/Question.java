@@ -36,7 +36,6 @@ public class Question {
     @Where(clause = "deleted = false")
     @OrderBy("id ASC")
     private List<Answer> answerList;
-
     private boolean deleted;
 
     public Question() {
