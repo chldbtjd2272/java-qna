@@ -1,12 +1,12 @@
 package codesquad.web;
 
+import codesquad.Exception.RedirectException;
 import codesquad.domain.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.swing.text.html.Option;
 import java.util.Optional;
@@ -17,15 +17,11 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-
     @PostMapping("/login")
     public String login(User user, HttpSession session) {
         Optional<User> maybeUser = userRepository.findByUserId(user.getUserId());
-        if (!maybeUser.isPresent()) {
-            throw new IllegalArgumentException();
-        }
         maybeUser.filter(u -> u.isCorrectPassword(user))
-                .orElseThrow(() -> new IllegalArgumentException("아이디 혹은 비밀번호가 틀렸어요"));
+                .orElseThrow(() -> new RedirectException("회원 정보를 확인해주세요."));
         session.setAttribute("sessionedUser", maybeUser.get());
         return "redirect:/";
     }
@@ -57,64 +53,24 @@ public class UserController {
 
     @GetMapping("/{id}/form")
     public String findUser(@PathVariable long id, HttpSession session, Model model) {
-        if (!WebUtil.isAlive(session)) {
-            return "/user/login";
-        }
-
+        WebUtil.invalidateSession(session);
         User user = WebUtil.fromSession(session);
-        if (user.matchId(id)) {
-            model.addAttribute("user", user);
-            return "/user/updateForm";
-        }
-        model.addAttribute("error", new ErrorMessage("접근 권한이 없습니다."));
-        return "/error";
+        user.invalidateUserId(id);
+        model.addAttribute("user", user);
+        return "/user/updateForm";
     }
 
     @PutMapping("")
     public String updateUser(User user, Model model, HttpSession session) {
         User original = findUserWithId(WebUtil.fromSession(session).getId(), userRepository);
-        if (original.isCorrectPassword(user)) {
-            original.update(user);
-            userRepository.save(original);
-            return "redirect:/users";
-        }
-        model.addAttribute("error", new ErrorMessage("비밀번호가 틀렸습니다"));
-        return "/error";
+        original.update(user);
+        userRepository.save(original);
+        return "redirect:/users";
     }
-
 
     static User findUserWithId(Long id, UserRepository userRepository) {
-
         Optional<User> userOptional = userRepository.findById(id);
-        userOptional.orElseThrow(() -> new IllegalArgumentException("No user found with id " + id));
+        userOptional.orElseThrow(() -> new RedirectException("잘못된 회원입니다."));
         return userOptional.get();
     }
-
-
-    //
-//    @PostMapping("/users")
-//    public ModelAndView create2(String userId,
-//                                String password,
-//                                String name,
-//                                String email, Model model){
-//        User user = new User(userId,password,name,email);
-//        users.add(user);
-//        ModelAndView mav = new ModelAndView("/user/list");
-//        mav.addObject("users",users);
-//        return mav;
-//    }
-//
-
-
-    //    @PostMapping("/users")
-//    public String create(String userId,
-//                                String password,
-//                                String name,
-//                                String email, Model model){
-//        User user = new User(userId,password,name,email);
-//        users.add(user);
-//
-//        model.addAttribute("users",users);
-//        return "/user/list";
-//    }
 }

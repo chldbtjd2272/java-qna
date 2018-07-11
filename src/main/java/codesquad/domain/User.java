@@ -1,12 +1,11 @@
 package codesquad.domain;
 
 
-import org.springframework.data.repository.CrudRepository;
+import codesquad.Exception.RedirectException;
 
 import javax.persistence.*;
-import javax.servlet.http.HttpSession;
 import java.util.Objects;
-import java.util.Optional;
+
 
 @Entity
 public class User {
@@ -16,7 +15,6 @@ public class User {
 
     @Column(length = 30, unique = true, nullable = false)
     private String userId;
-
 
     private String password;
     private String name;
@@ -38,14 +36,6 @@ public class User {
         this.password = password;
         this.name = name;
         this.email = email;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getUserId() {
@@ -77,7 +67,6 @@ public class User {
     }
 
     public String getEmail() {
-
         return email;
     }
 
@@ -85,8 +74,16 @@ public class User {
         return this.password.equals(user.password);
     }
 
-    public boolean matchId(long id) {
-        return this.id == id;
+    public void invalidateUserId(long id) {
+        if (this.id != id)
+            throw new RedirectException("접근권한이 없습니다.");
+    }
+
+    public void update(User user) {
+        if (!isCorrectPassword(user))
+            throw new RedirectException("비밀번호가 틀렸습니다.");
+        this.name = user.name;
+        this.email = user.email;
     }
 
     @Override
@@ -103,12 +100,7 @@ public class User {
 
     @Override
     public int hashCode() {
-
         return Objects.hash(id, userId, password, name, email);
     }
 
-    public void update(User user) {
-        this.name = user.name;
-        this.email = user.email;
-    }
 }

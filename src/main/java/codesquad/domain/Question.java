@@ -1,14 +1,9 @@
 package codesquad.domain;
 
-import codesquad.web.WebUtil;
-import org.springframework.data.repository.CrudRepository;
+
+import codesquad.Exception.RedirectException;
 
 import javax.persistence.*;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-import org.springframework.data.repository.CrudRepository;
-
-import java.util.Optional;
 
 @Entity
 public class Question {
@@ -23,13 +18,13 @@ public class Question {
 
     @Column(nullable = false)
     private String password;
+
     @Column(nullable = false)
     private String title;
+
     private String contents;
 
-
-    public Question() {
-    }
+    public Question() {}
 
     public String getPassword() {
         return password;
@@ -75,11 +70,16 @@ public class Question {
         return this.password.equals(question.getPassword());
     }
 
-    public boolean matchWriter(User user) {
-        return writer.equals(user);
+    public void invalidateWriter(User user) {
+        if (!writer.equals(user)) {
+            throw new RedirectException("권한이 없습니다.");
+        }
     }
 
     public void update(Question question) {
+        if (!isCorrectPassword(question)) {
+            throw new RedirectException("잘못된 비밀번호입니다.");
+        }
         this.title = question.title;
         this.contents = question.contents;
     }
