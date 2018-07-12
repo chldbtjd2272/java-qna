@@ -41,6 +41,7 @@ public class QuestionController {
 
     @GetMapping("/{id}")
     public String show(@PathVariable Long id, Model model) {
+        model.addAttribute("question", findById(id, this.questionRepository));
         return "/qna/show";
     }
 
@@ -71,7 +72,7 @@ public class QuestionController {
         return "redirect:/";
     }
 
-    static Question findById(Long id, QuestionRepository questionRepository) {
+    public static Question findById(Long id, QuestionRepository questionRepository) {
         Optional<Question> questionOptional = questionRepository.findById(id);
         questionOptional.orElseThrow(() -> new IllegalArgumentException("No question found with id " + id));
         return questionOptional.get();

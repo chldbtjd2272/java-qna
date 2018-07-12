@@ -28,10 +28,22 @@ public class Answer {
         this.deleted = false;
     }
 
+    public Answer(String contents, User writer, Question question) {
+        this();
+        this.contents = contents;
+        this.writer = writer;
+        this.question = question;
+    }
+
     public void validateWriter(User user) {
         if (!writer.equals(user)) {
             throw new RedirectException("권한이 없습니다.");
         }
+    }
+
+    public void delete(User user) {
+        validateWriter(user);
+        this.deleted = true;
     }
 
     public boolean matchId(long answerId) {

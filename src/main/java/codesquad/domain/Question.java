@@ -43,6 +43,14 @@ public class Question {
         deleted = false;
     }
 
+    public Question(User writer, String password, String title, String contents) {
+        this();
+        this.writer = writer;
+        this.password = password;
+        this.title = title;
+        this.contents = contents;
+    }
+
     public boolean isCorrectPassword(Question question) {
         return this.password.equals(question.getPassword());
     }
@@ -79,8 +87,7 @@ public class Question {
         if (maybeAnswer == null) {
             throw new RedirectException("잘못된 접근입니다.");
         }
-        maybeAnswer.validateWriter(loginUser);
-        maybeAnswer.setDeleted(true);
+        maybeAnswer.delete(loginUser);
     }
 
     public void removeAnswer(Long answerId, User loginUser) {
@@ -88,8 +95,7 @@ public class Question {
         if (maybeAnswer == null) {
             throw new RedirectException("잘못된 접근입니다.");
         }
-        maybeAnswer.validateWriter(loginUser);
-        maybeAnswer.setDeleted(true);
+        maybeAnswer.delete(loginUser);
     }
 
     private boolean IsDeletable() {
